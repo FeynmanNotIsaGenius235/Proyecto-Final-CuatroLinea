@@ -1,6 +1,26 @@
 #include <iostream>
 #include <fstream>
+#include <string>
 using namespace std;
+
+void leerReglas(string rutaArchivoEntrada){
+	
+	string linea;
+	
+	ifstream ArchivoEntrada(rutaArchivoEntrada.c_str());
+	
+	if(ArchivoEntrada.is_open()){		
+		while(getline(ArchivoEntrada,linea)){
+			cout<<linea<<endl;
+		}
+		
+		cin.get();
+
+    	system("cls");
+		
+	}
+	
+}
 
 void InicializarTablero(char Tablero[6][7]){
 	
@@ -65,7 +85,7 @@ int ContarFichas(char Tablero[6][7], int fila, int columna, char Jugador){
 		return 0;
 	}
 		
-	return 1+ContarFichas(Tablero,fila-1,columna,Jugador);
+	return 1+ContarFichas(Tablero,fila+1,columna,Jugador);
 }
 
 
@@ -86,66 +106,80 @@ int main(){
 	
 	char TableroJuego[6][7];
 	
-	InicializarTablero(TableroJuego);
+	char JugadorActual;
 	
-	MostrarTablero(TableroJuego);
+	int Columna;
 	
-	int Fila=ColocarFicha(TableroJuego,0,'#');
+	string Jugador_1,Jugador_2;
 	
-	MostrarTablero(TableroJuego);
+	bool jugarOtraVez = true,gano;
 	
-	cout<<Fila<<endl;
+	leerReglas("Entrada/INSTRUCCIONES.txt");
 	
-	Fila=ColocarFicha(TableroJuego,0,'#');
-	
-	MostrarTablero(TableroJuego);
-	
-	cout<<Fila<<endl;
-	
-	Fila=ColocarFicha(TableroJuego,0,'#');
-	
-	MostrarTablero(TableroJuego);
-	
-	cout<<Fila<<endl;
-	
-	cout<<verificarGanador(TableroJuego,5,0,'#')<<endl;
-	
-	Fila=ColocarFicha(TableroJuego,0,'#');
-	
-	MostrarTablero(TableroJuego);
-	
-	cout<<Fila<<endl;
-	
-	cout<<verificarGanador(TableroJuego,5,0,'#');
-	
-	int Fila1=ColocarFicha(TableroJuego,1,'$');
-	
-	MostrarTablero(TableroJuego);
-	
-	cout<<Fila1<<endl;
-	
-	Fila1=ColocarFicha(TableroJuego,1,'$');
-	
-	MostrarTablero(TableroJuego);
-	
-	cout<<Fila1<<endl;
-	
-	Fila1=ColocarFicha(TableroJuego,1,'$');
-	
-	MostrarTablero(TableroJuego);
-	
-	cout<<Fila1<<endl;
-	
-	cout<<verificarGanador(TableroJuego,5,1,'$')<<endl;
-	
-	Fila1=ColocarFicha(TableroJuego,1,'$');
-	
-	MostrarTablero(TableroJuego);
-	
-	cout<<Fila1<<endl;
-	
-	cout<<verificarGanador(TableroJuego,5,1,'$');
+	cout<<"Bienvenido a la interfaz del juego Cuatro en linea"<<endl;
+			
+	cout<<"Para continuar escriba el nombre del jugador 1:"<<endl;
 		
+	cin>>Jugador_1;
+		
+	cout<<"Para continuar escriba el nombre del jugador 2:"<<endl;
+		
+	cin>>Jugador_2;
+			
+	while(jugarOtraVez){
+		
+			InicializarTablero(TableroJuego); 
+			
+			gano=false;
+
+			while(!gano){
+				
+				JugadorActual='#';
+        
+        		MostrarTablero(TableroJuego);
+        		
+        		cout << "Turno: " << Jugador_1<< " seleccione la columna: "<<endl;
+        		
+        		cin>>Columna;
+        		
+        		int Fila=ColocarFicha(TableroJuego,Columna,JugadorActual);
+        		
+        		gano=verificarGanador(TableroJuego,Fila,Columna,JugadorActual);
+        
+        		if(!gano){
+        			
+        			JugadorActual='$';
+        
+        			MostrarTablero(TableroJuego);
+        		
+        			cout << "Turno: " << Jugador_2<< " seleccione la columna: "<<endl;
+        		
+        			cin>>Columna;
+        		
+        			int Fila=ColocarFicha(TableroJuego,Columna,JugadorActual);
+        		
+        			gano=verificarGanador(TableroJuego,Fila,Columna,JugadorActual);
+
+        		}
+    		}
+			
+			MostrarTablero(TableroJuego);
+						
+			cout<<"Partida Finalizada.."<<endl;	
+			
+			cout << "¡Jugador " << JugadorActual<< " ganó!" << endl;
+
+			
+			cout << "¿Desean jugar otra vez? (s/n): ";
+			
+   			char respuesta;
+   			
+    		cin >> respuesta;
+    		
+    		jugarOtraVez =(respuesta == 's');	
+				
+		}
+			
     return 0;
 }
 

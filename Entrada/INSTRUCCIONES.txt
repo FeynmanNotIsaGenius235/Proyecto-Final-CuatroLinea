@@ -1,0 +1,16 @@
+INSTRUCCIONES CONECTA CUATRO
+
+
+Cantidad de Jugadores:
+
+Se juega siempre entre 2 jugadores 
+
+Caracteristica del tablero de juego:
+
+Tablero de 6x7 casillas. 
+
+Instrucciones
+
+En cada turno cada jugador coloca una ficha de su color en una columna y esta cae hasta la primera casilla disponible. El que consigue ubicar 4 fichas del mismo color seguidas en horizontal, vertical u oblicuo gana. Si nadie lo consigue la partida termina en empate.
+
+Se pueden jugar varias partidas seguidas, en un archivo de texto aparte se llevara una historia del resultado, al final se determina el ganador por el que mas veces haya ganado
