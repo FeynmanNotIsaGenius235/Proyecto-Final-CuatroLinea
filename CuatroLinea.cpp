@@ -49,7 +49,7 @@ void MostrarTablero(char Tablero[6][7]){
 	}
 }
 
-int FilaDisponible(char Tablero[6][7],int ColumnaSeleccionada,int FilaActual=6){
+int FilaDisponible(char Tablero[6][7],int ColumnaSeleccionada,int FilaActual=5){
 	
 	if(FilaActual<0){
 		return -1;
@@ -60,6 +60,22 @@ int FilaDisponible(char Tablero[6][7],int ColumnaSeleccionada,int FilaActual=6){
 	}
 		
 	return FilaDisponible(Tablero,ColumnaSeleccionada,FilaActual-1);
+}
+
+bool jugadaValida(char Tablero[6][7], int ColumnaSeleccionada){
+	
+	if(ColumnaSeleccionada<0 || ColumnaSeleccionada>6){
+		return false;
+	}
+	
+	int Fila=FilaDisponible(Tablero,ColumnaSeleccionada);
+	
+	if(Fila==-1){
+		return false;
+	}else{
+		return true;
+	}
+	
 }
 
 int ColocarFicha(char Tablero[6][7],int columna, char jugador){
@@ -75,9 +91,9 @@ int ColocarFicha(char Tablero[6][7],int columna, char jugador){
 	
 }
 
-int ContarFichas(char Tablero[6][7], int fila, int columna, char Jugador){
+int ContarFichas(char Tablero[6][7], int fila, int columna,int DeltaFila,int DeltaColumna,char Jugador){
 	
-	if(fila<0){
+	if(fila<0 || fila>5 || columna<0 || columna>6){
 		return 0;
 	}
 	
@@ -85,22 +101,59 @@ int ContarFichas(char Tablero[6][7], int fila, int columna, char Jugador){
 		return 0;
 	}
 		
-	return 1+ContarFichas(Tablero,fila+1,columna,Jugador);
+	return 1+ContarFichas(Tablero,fila+DeltaFila,columna+DeltaColumna,DeltaFila,DeltaColumna,Jugador);
 }
 
 
 bool verificarGanador(char Tablero[6][7], int fila, int columna, char Jugador){
 	
-	int FichasSeguidas=ContarFichas(Tablero,fila,columna,Jugador);
+	int Arriba=ContarFichas(Tablero,fila-1,columna,-1,0,Jugador);
 	
-	if(FichasSeguidas>=4){
+	int Abajo=ContarFichas(Tablero,fila+1,columna,+1,0,Jugador);
+	
+	if((1+Arriba+Abajo)==4){
 		return true;
-	}else{
-		return false;
 	}
+	
+	int Izquierda=ContarFichas(Tablero,fila,columna-1,0,-1,Jugador);
+	
+	int Derecha=ContarFichas(Tablero,fila,columna+1,0,+1,Jugador);
+	
+	if((1+Izquierda+Derecha)==4){
+		return true;
+	}
+	
+	int ArribaIzquierda=ContarFichas(Tablero,fila-1,columna-1,-1,-1,Jugador);
+	
+	int AbajoDerecha=ContarFichas(Tablero,fila+1,columna+1,+1,+1,Jugador);
+	
+	if((1+ArribaIzquierda+AbajoDerecha)==4){
+		return true;
+	}
+	
+	int ArribaDerecha=ContarFichas(Tablero,fila-1,columna+1,-1,+1,Jugador);
+	
+	int AbajoIzquierda=ContarFichas(Tablero,fila+1,columna-1,+1,-1,Jugador);
+	
+	if((1+ArribaDerecha+AbajoIzquierda)==4){
+		return true;
+	}
+		
+	return false;
 	
 }
 
+void GuardarInformacion(string rutaArchivoSalida,char JugadorActual, bool gano){
+	
+	ofstream Archivo(rutaArchivoSalida.c_str(),ios_base::app);
+        
+    if(gano){
+    	Archivo<< "Partida finalizada. " <<JugadorActual<< " gano!" << endl;
+	}else{
+   		Archivo<< "Partida finalizada. Empate!" << endl;
+		}
+	
+}
 
 int main(){
 	
@@ -125,24 +178,39 @@ int main(){
 	cout<<"Para continuar escriba el nombre del jugador 2:"<<endl;
 		
 	cin>>Jugador_2;
+	
+	ofstream archivo("Salida/HISTORICOJuegos.txt", ios_base::app);
+	
+	archivo<<Jugador_1<<"\t"<<Jugador_2<<endl;
 			
 	while(jugarOtraVez){
 		
 			InicializarTablero(TableroJuego); 
 			
 			gano=false;
+			
+			int TurnosJugados=0;
 
-			while(!gano){
-				
-				JugadorActual='#';
+			while(!gano && TurnosJugados<42){
+			        		
+        		JugadorActual='#';
         
         		MostrarTablero(TableroJuego);
         		
-        		cout << "Turno: " << Jugador_1<< " seleccione la columna: "<<endl;
+        		do{      			
+        			cout << "Turno: " << Jugador_1<< " seleccione la columna: "<<endl;
         		
-        		cin>>Columna;
+        			cin>>Columna;
+        			
+        			if(!jugadaValida(TableroJuego, Columna)){
+        				cout << "Columna inválida o llena. Intente de nuevo." << endl;
+   					}
+        			
+				}while(!jugadaValida(TableroJuego, Columna));
         		
         		int Fila=ColocarFicha(TableroJuego,Columna,JugadorActual);
+        			
+        		TurnosJugados+=1;
         		
         		gano=verificarGanador(TableroJuego,Fila,Columna,JugadorActual);
         
@@ -151,12 +219,21 @@ int main(){
         			JugadorActual='$';
         
         			MostrarTablero(TableroJuego);
-        		
+        			
+        			do{      			
         			cout << "Turno: " << Jugador_2<< " seleccione la columna: "<<endl;
         		
         			cin>>Columna;
-        		
+        			
+        			if(!jugadaValida(TableroJuego, Columna)){
+        				cout << "Columna inválida o llena. Intente de nuevo." << endl;
+   					}
+        			
+					}while(!jugadaValida(TableroJuego, Columna));
+        		        		        		
         			int Fila=ColocarFicha(TableroJuego,Columna,JugadorActual);
+        			
+        			TurnosJugados+=1;
         		
         			gano=verificarGanador(TableroJuego,Fila,Columna,JugadorActual);
 
@@ -167,9 +244,10 @@ int main(){
 						
 			cout<<"Partida Finalizada.."<<endl;	
 			
-			cout << "¡Jugador " << JugadorActual<< " ganó!" << endl;
-
+			string ArchivoSalida="Salida/HISTORICOJuegos.txt";
 			
+			GuardarInformacion(ArchivoSalida,JugadorActual,gano);
+					
 			cout << "¿Desean jugar otra vez? (s/n): ";
 			
    			char respuesta;
